@@ -1,60 +1,59 @@
-BOURBON=node_modules/bourbon/app/assets/stylesheets
-FOOTER=printf $(if $$? = 0, '\x1b[32mDONE', '\x1b[31mERROR')"\x1b[0m\n"
-HEADER=printf '  $@... '
-HTML_MINIFIER=node_modules/html-minifier/cli.js
-HTTP_SERVER=node_modules/http-server/bin/http-server
-IMAGEMIN=node_modules/imagemin/cli.js
-MUSTACHE=node_modules/mu2/bin/mu
-SASS=node_modules/node-sass/bin/node-sass
-VIGILIA=node_modules/vigilia/bin/vigilia
-WEBPACK=node_modules/webpack/bin/webpack.js
+.DEFAULT_GOAL := help
 
-PORT?=4040
+.PHONY: all \
+				build \
+				clean \
+				help \
+				images \
+				install \
+				run \
+				scripts \
+				styles \
+				templates \
+				tree \
+				watch
 
 .SILENT:
 
+# generate assets
 build: images scripts styles templates
 
+# clean generated assets
 clean:
-	$(HEADER)
-	rm -fr public
-	rm -f npm-debug.log
-	$(FOOTER)
+	tasks/clean
 
+# show some help
+help:
+	tasks/help
+
+# compress images
 images: tree
-	$(HEADER)
-	$(IMAGEMIN) client/images public/images
-	$(FOOTER)
+	tasks/images
 
+# install project dependencies
 install:
-	npm install
+	tasks/install
 
+# start the web server
 run: build
-	$(HTTP_SERVER) -p $(PORT)
+	tasks/run
 
+# generate scripts
 scripts: tree
-	$(HEADER)
-	$(WEBPACK) --bail -p client/scripts/main.js public/scripts/main.js > /dev/null
-	$(FOOTER)
+	tasks/scripts
 
+# generate styles
 styles: tree
-	$(HEADER)
-	$(SASS) --include-path $(BOURBON) --output public/styles --output-style compressed --quiet client/styles/major.scss public/styles/major.css
-	$(SASS) --include-path $(BOURBON) --output public/styles --output-style compressed --quiet client/styles/minor.scss public/styles/minor.css
-	$(FOOTER)
+	tasks/styles
 
+# generate templates
 templates: tree
-	$(HEADER)
-	$(MUSTACHE) --view "`cat package.json`" --root client/templates main.html > public/index.html
-	$(HTML_MINIFIER) --collapse-whitespace --output public/index.html --remove-comments public/index.html
-	$(FOOTER)
+	tasks/templates
 
+# generate the public file tree
 tree:
-	$(HEADER)
-	mkdir -p public/images
-	mkdir -p public/scripts
-	mkdir -p public/styles
-	$(FOOTER)
+	tasks/tree
 
+# build whenever something changes
 watch: build
-	$(VIGILIA) 'client/images/**/*':'make images' 'client/scripts/**/*.js':'make scripts' 'client/styles/**/*.scss':'make styles' 'client/templates/**/*.html':'make templates'
+	tasks/watch

@@ -22,3 +22,8 @@ make run
 # You may pass a different port than the 3000 default
 make run PORT=8080
 ```
+
+```shell
+# ask for help to see all available tasks
+make help
+```
